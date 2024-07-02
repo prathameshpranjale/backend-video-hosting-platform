@@ -1,0 +1,16 @@
+{
+  "name": "youtube_similar",
+  "version": "1.0.0",
+  "description": "a backend app with chai aur code ",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "javascript",
+    "backend",
+    "project"
+  ],
+  "author": "prathamesh pranjale",
+  "license": "ISC"
+}
