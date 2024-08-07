@@ -1,26 +1,26 @@
 import dontenv from "dotenv"
 import express from "express";
 import connectDB from "./db/indexdb.js";
+import { app } from "./app.js";
 
 dontenv.config({
     path:'./env'
 })
 
-// adding error handling 
-const app = express();
+
 
 // error handler for app
 
 
-app.on("error",(error)=>{
-    // listen for errors emitted by the express app and logs them 
-    console.log("ERROR",error);
-})
-
+// app.on("error",(error)=>{
+//     // listen for errors emitted by the express app and logs them 
+//     console.log("ERROR",error);
+// })
+const PORT = process.env.PORT || 8000;
 connectDB()
 .then(()=>{
-    app.listen(process.env.PORT || 8000, ()=>{
-        console.log(`Server is running at port : ${process.env.PORT}`);
+    app.listen(PORT, ()=>{
+        console.log(`Server is running at port : ${process.env.PORT} yoooo`);
     })
 })
 .catch((err)=>{
