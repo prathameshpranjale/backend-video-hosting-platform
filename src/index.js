@@ -4,7 +4,7 @@ import connectDB from "./db/indexdb.js";
 import { app } from "./app.js";
 
 dontenv.config({
-    path:'./env'
+    path:'./.env'
 })
 
 

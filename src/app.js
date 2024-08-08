@@ -12,7 +12,8 @@ app.use(cors({
 // .use is syntax for middle wares
 app.use(express.json({limit:"16kb"}))
 
-// for url data 
+// for url data
+ 
 app.use(express.urlencoded({limit:"16kb"}))
 
 // for storing assets
