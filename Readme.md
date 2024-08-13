@@ -21,15 +21,7 @@ Developer Tools: VS Code, Postman
 
 
 Project Structure
-├── src
-│   ├── controllers
-│   ├── models
-│   ├── routes
-│   ├── middlewares
-│   └── utils
-├── .env
-├── package.json
-└── README.md
+
 
 
 Controllers: Handle the business logic and request processing.
