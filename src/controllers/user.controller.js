@@ -246,9 +246,152 @@ const refreshAcessToken = asyncHandler(async(req,res)=>{
         throw new ApiError(401,error?.message || "invalid refresh token")
     }
 })
+
+const changeCurrentPassword = asyncHandler(async(req,res)=>{
+    
+    const {oldPassword,newpassword,confirmpassword} = req.body
+
+    const user = await User.findById(req.user?._id)
+
+    // first checking old password is correct or not
+    const  isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
+
+    if(!isPasswordCorrect){
+        throw new ApiError(400,"Invalid old Password !!!!!")
+    }
+
+    
+    if(!(newpassword ===confirmpassword)){
+        throw new ApiError(401,"New password does not match with confirm password") 
+
+    }else{
+
+        user.password = newpassword
+        await user.save({validateBeforeSave:false})
+
+        return res
+        .status(200)
+        .json(new ApiResponse(200,{},"Password is changed successfully"))
+    }
+    
+
+
+
+
+
+})
+
+
+const getCurrentUser = asyncHandler(async(req,res)=>{
+    return res
+    .status(200)
+    .json(200,req.user,"Current User feteched succesfully")
+})
+
+const updateAccountDetails = asyncHandler(async(req,res)=>{
+
+    const {fullName,email} = req.body
+
+    if(!fullName || !email){
+        throw new ApiError(400,"All fields are required")
+    }
+
+    const user=  User.findByIdAndUpdate(
+        req.user?._id,
+        {   
+            // mongod operators aggregation functions etc
+            $set:{
+                fullName:fullName,
+                email:email,
+
+
+            }
+
+        },
+        {new:true}
+        // update hone ke bad information return hoti hai
+    ).select("-password")
+
+    return res.status(200)
+    .json(new ApiResponse(200,user,"Account details updated successfully"))
+
+})
+
+const updateUserAvatar = asyncHandler(async(req,res)=>{
+
+    const avatarLocalPath = req.file?.path
+    if(!avatarLocalPath){
+        throw new ApiError(400,"avatar file is missing")
+    }
+
+    // this is cloudinary object not url we need specific url from that object
+
+    const avatar = await uploadOnCloudinary(avatarLocalPath)
+
+    if(!avatar.url){
+        throw new ApiError(400,"Error while uploading on avatar")
+    }
+
+    const user  = await User.findByIdAndUpdate(req.user?._id,
+        {
+            $set:{
+                avatar:avatar.url
+            }
+        },{
+            new:true
+        }.select("-password")
+    )
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, user, "Avatar Image uploaded successfully")
+        )
+
+})
+
+const updateUserCoverImage = asyncHandler(async (req, res) => {
+
+    const coverLocalPath = req.file?.path
+    if (!coverLocalPath) {
+        throw new ApiError(400, "cover image file is missing")
+    }
+
+    // this is cloudinary object not url we need specific url from that object
+
+    const coverImage = await uploadOnCloudinary(avatarLocalPath)
+
+    if (!coverImage.url) {
+        throw new ApiError(400, "Error while uploading on cover image")
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                coverImage: coverImage.url
+            }
+        }, {
+            new: true
+        }).select("-password")
+
+
+        return res
+        .status(200)
+        .json(
+            new ApiResponse(200,user,"Cover Image uploaded successfully")
+        )
+    
+
+})
 export { 
     registerUser,
     loginUser,
     logoutUser,
-    refreshAcessToken
+    refreshAcessToken,
+    changeCurrentPassword,
+    getCurrentUser,
+    updateAccountDetails,
+    updateUserAvatar,
+    updateUserCoverImage
 };
