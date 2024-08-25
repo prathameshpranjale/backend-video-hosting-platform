@@ -1,6 +1,6 @@
 import mongoose,{Schema} from "mongoose";
 import jwt from "jsonwebtoken";
-import bcrypt from 'bcrypt';
+import bcrypt from "bcrypt";
 
 
 const userSchema = new Schema({
@@ -48,20 +48,37 @@ const userSchema = new Schema({
     }
 },{
     timestamps:true
-})
+})  
 
 // pre hook middle ware from mongoose to encrpty password to store 
-userSchema.pre("save",async function(next){
+userSchema.pre('save', async function (next) {
+    if (!this.isModified('password')) return next()
 
-    if(!this.isModified("password")) return next();
-    this.password = await bcrypt.hash(this.password,10)
-    next()
-})
+    // console.log('Password before hashing:', this.password); // Check the value
 
-userSchema.methods.isPasswordCorrect = async function
-(password){
+    try {
+        if (!this.password) {
+            throw new Error('Password is not set');
+        }
+        this.password = await bcrypt.hash(this.password, 10)
+        next();
+    } catch (err) {
+        console.log("error hit !123!");
+        console.error(err); // Log the actual error
+        next(err); // Pass the error to the next middleware or error handler
+    }
+});
 
-    return await bcrypt.compare(password,this.password);
+
+userSchema.methods.isPasswordCorrect = async function(password){
+    // console.log('Entered password:', password);
+    // console.log('Stored hash:', this.password);
+    try {
+        return await bcrypt.compare(password, this.password)
+    } catch (err) {
+        console.error('Error comparing passwords:', err)
+        throw err;
+    }
 }
 
 userSchema.methods.generateAccessToken = function(){
