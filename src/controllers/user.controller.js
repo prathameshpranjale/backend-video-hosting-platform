@@ -83,6 +83,7 @@ const registerUser = asyncHandler(async (req, res) => {
     // const avatarLocalPath = req.files?.avatar[0]?.path;
     // console.log(req.files);
    const avatarLocalPath = req.files?.avatar?.[0];
+//    if you know its required field use above path 
 //    const coverImageLocalPath = req.files?.coverImage?.[0];
     let coverImageLocalPath;
     if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {

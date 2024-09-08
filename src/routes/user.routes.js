@@ -35,12 +35,12 @@ router.route("/login").post(loginUser)
 
 // secured routes
 router.route("/logout").post(verifyJWT, logoutUser)
-// need to check 
+
 router.route("/refresh-token").post(refreshAcessToken)
 router.route("/change-password").post(verifyJWT,changeCurrentPassword)
 router.route("/current-user").get(verifyJWT,getCurrentUser)
 router.route("/update-account").patch(verifyJWT,updateAccountDetails)
-
+// need to check 
 router.route("/avatar-update").patch(verifyJWT,upload.single("avatar"),updateUserAvatar)
 router.route("/cover-image").patch(verifyJWT, upload.single("coverImage"), updateUserCoverImage)
 
