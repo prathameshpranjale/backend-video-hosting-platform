@@ -2,6 +2,7 @@ import { asyncHandler } from '../utils/asyncHandler.js';
 import { ApiError } from '../utils/ApiError.js';
 import {User} from '../models/user.model.js'
 import { uploadOnCloudinary } from '../utils/cloudinary.js';
+import mongoose from 'mongoose';
 // this user can interact with mongodb directly 
 import { ApiResponse } from '../utils/ApiResponse.js';
 import jwt from "jsonwebtoken";
@@ -327,15 +328,22 @@ const updateUserAvatar = asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Error while uploading on avatar")
     }
 
-    const user  = await User.findByIdAndUpdate(req.user?._id,
+    const user  = await User.findByIdAndUpdate(
+        req.user?._id,
         {
             $set:{
                 avatar:avatar.url
             }
         },{
-            new:true
-        }.select("-password")
+
+            new: true,  // Return the updated document
+            select: "-password"  // Directly exclude the password from the returned document
+        }
     )
+
+    if (user) {
+        user.password = undefined;
+    }
 
     return res
         .status(200)
@@ -354,7 +362,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 
     // this is cloudinary object not url we need specific url from that object
 
-    const coverImage = await uploadOnCloudinary(avatarLocalPath)
+    const coverImage = await uploadOnCloudinary(coverLocalPath)
 
     if (!coverImage.url) {
         throw new ApiError(400, "Error while uploading on cover image")
@@ -383,7 +391,7 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
 
 const getUserChannelProfile = asyncHandler(async(req,res)=>{
 
-    const {userName} = req.params;
+    const {username} = req.params;
 
     if (!username?.trim()) {
         throw new ApiError(400, "username is missing")
