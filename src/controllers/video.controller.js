@@ -6,12 +6,61 @@ import { ApiResponse } from "../utils/ApiResponse.js"
 import { asyncHandler } from "../utils/asyncHandler.js"
 import { uploadOnCloudinary } from "../utils/cloudinary.js"
 
-
+// learn this pagination logic and understand it
 const getAllVideos = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query
     //TODO: get all videos based on query, sort, pagination
-})
+    // const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
 
+    // Build query object based on filters
+    let filter = {};
+    if (query) {
+        filter = {
+            $or: [
+                { title: { $regex: query, $options: 'i' } },
+                { description: { $regex: query, $options: 'i' } }
+            ]
+        };
+    }
+
+    // Filter by userId if provided (changed from userId to owner)
+    if (userId) {
+        filter.owner = userId; // Corrected to use the 'owner' field
+    }
+
+    // Set sorting options
+    let sortOptions = {};
+    if (sortBy) {
+        sortOptions[sortBy] = sortType === 'desc' ? -1 : 1; // Sort by specified field
+    }
+
+    // Pagination options
+    const skip = (page - 1) * limit;
+
+    // Fetch videos from the database
+    const videos = await Video.find(filter)
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(parseInt(limit))
+        .exec();
+
+    // Get total count for pagination
+    const totalVideos = await Video.countDocuments(filter);
+    const totalPages = Math.ceil(totalVideos / limit);
+
+    return res.status(200).json({
+        success: true,
+        data: videos,
+        pagination: {
+            totalVideos,
+            totalPages,
+            currentPage: page,
+            limit: parseInt(limit),
+        },
+    });
+    
+})
+ 
 
 const publishAVideo = asyncHandler(async (req, res) => {
     const { title, description } = req.body
@@ -143,10 +192,48 @@ const updateVideo = asyncHandler(async (req, res) => {
 const deleteVideo = asyncHandler(async (req, res) => {
     const { videoId } = req.params
     //TODO: delete video
+    if (!videoId) {
+        throw new ApiError(404, "video Id not found !!!");
+    }
+    const videoExists = await Video.findById(videoId);
+    if (!videoExists) {
+        throw new ApiError(404, "Video not found");
+    }
+
+    await Video.findByIdAndDelete(videoId);
+
+    // Send response
+    return res.status(200).json({
+        success: true,
+        message: "Video deleted successfully",
+    });
+
+
 })
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
     const { videoId } = req.params
+
+    if (!videoId) {
+        throw new ApiError(404, "video Id not found !!!");
+    }
+
+    const videoExists = await Video.findById(videoId);
+    if (!videoExists) {
+        throw new ApiError(404, "Video not found");
+    }
+
+    const updatedVideoDetails = await Video.findByIdAndUpdate(
+        videoId,
+        { $set: { isPublished: !videoExists.isPublished } }, // Toggle the value
+        { new: true }
+    );
+
+    return res.status(200).json({
+        success: true,
+        data: updatedVideoDetails,
+    });
+
 })
 
 export {
