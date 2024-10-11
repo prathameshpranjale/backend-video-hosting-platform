@@ -25,14 +25,18 @@ app.use(cookieParser())
 // import routes
 import userRouter from "./routes/user.routes.js"
 import healthcheckRouter from "./routes/healthcheck.routes.js"
+import videoRouter from "./routes/video.routes.js"
  
 // routes declaration
 // we can just check here    console.log('Route Hit!!!!!',req.path);
+// usr and health check done 
 app.use('/api/v1/users',(req,res,next)=>{next();},userRouter);
-app.use('/api/v1/healthcheck', (req, res, next) => {
-    console.log('Route Hit !!', req.path);
-    next(); // Pass control to the next middleware (healthcheckRouter)
-}, healthcheckRouter);
+app.use('/api/v1/healthcheck', healthcheckRouter);
+app.use('/api/v1/videos',(req,res,next)=>{
+    console.log('Route hit!!',req.path);
+    next();
+    
+},videoRouter);
 
 
 

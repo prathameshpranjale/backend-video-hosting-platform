@@ -8,7 +8,7 @@ import {
     updateVideo,
 } from "../controllers/video.controller.js"
 import { verifyJWT } from "../middlewares/auth.middleware.js"
-import { upload } from "../middlewares/multer.middleware.js"
+import { upload } from "../middlewares/multer.middlewares.js"
 
 const router = Router();
 router.use(verifyJWT); // Apply verifyJWT middleware to all routes in this file
@@ -40,3 +40,11 @@ router
 router.route("/toggle/publish/:videoId").patch(togglePublishStatus);
 
 export default router
+
+
+// Route: /, Methods: GET
+// Route: /, Methods: POST  = done 
+// Route: /:videoId, Methods: GET = done 
+// Route: /:videoId, Methods: DELETE
+// Route: /:videoId, Methods: PATCH = done 
+// Route: /toggle/publish /: videoId, Methods: PATCH
